@@ -199,17 +199,18 @@ class GameController {
             this.elements.distVal.textContent = Math.floor(this.penguin.x / 10);
             
             
+            
             // Camera follow
-            const targetCamX = this.penguin.x - window.innerWidth / 3;
-            this.cameraX += (targetCamX - this.cameraX) * 0.1;
+            const targetCamX = this.penguin.x - window.innerWidth / 2;
+            this.cameraX += (targetCamX - this.cameraX) * 0.25; 
 
             // Vertical Camera Follow
-            // Keep the penguin at about 60% height of the screen when flying
-            const targetCamY = Math.min(0, this.penguin.y - window.innerHeight * 0.6);
-            this.cameraY += (targetCamY - this.cameraY) * 0.05;
+            // Keep the penguin at 50% height (centered)
+            const targetCamY = this.penguin.y - window.innerHeight / 2;
+            this.cameraY += (targetCamY - this.cameraY) * 0.25; 
         } else {
             // Smoothly return camera Y to 0 when not traveling
-            this.cameraY += (0 - this.cameraY) * 0.05;
+            this.cameraY += (0 - this.cameraY) * 0.1;
         }
 
         // Render

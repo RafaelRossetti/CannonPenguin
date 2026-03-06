@@ -16,14 +16,25 @@ export class Environment {
 
     generateNewChunk(startX) {
         const chunkWidth = 2000;
-        // Generate a few air boosters
-        for (let i = 0; i < 3; i++) {
+        // Generate a few air boosters (Clouds - Buffs)
+        for (let i = 0; i < 2; i++) {
             this.boosters.push({
                 x: startX + Math.random() * chunkWidth,
-                y: 100 + Math.random() * (this.groundY - 300),
+                y: -1000 + Math.random() * (this.groundY + 800), // Much wider vertical range
                 type: 'cloud',
                 radius: 40,
                 color: 'rgba(255, 255, 255, 0.5)'
+            });
+        }
+
+        // Generate flying obstacles (Birds - Nerfs)
+        for (let i = 0; i < 3; i++) {
+            this.boosters.push({
+                x: startX + Math.random() * chunkWidth,
+                y: -1200 + Math.random() * (this.groundY + 1000),
+                type: 'bird',
+                radius: 25,
+                color: '#2d3436'
             });
         }
 
@@ -60,8 +71,17 @@ export class Environment {
                 if (dist < b.radius + 20) {
                     penguin.vx += 10;
                     penguin.vy = -5;
-                    this.boosters.splice(i, 1); // Consume cloud
-                    // Trigger sound/effect here
+                    this.boosters.splice(i, 1);
+                }
+            } else if (b.type === 'bird') {
+                const dx = penguin.x - b.x;
+                const dy = penguin.y - b.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist < b.radius + 20) {
+                    penguin.vx *= 0.5; // Hits bird, lose speed
+                    penguin.vy += 5; // Pushed down
+                    this.boosters.splice(i, 1);
                 }
             } else if (b.type === 'trampoline') {
                 if (penguin.x > b.x - 30 && penguin.x < b.x + 30 && 
@@ -109,6 +129,22 @@ export class Environment {
                 this.ctx.fillStyle = 'rgba(255,255,255,0.8)';
                 this.ctx.font = '20px sans-serif';
                 this.ctx.fillText('⚡', sx - 10, sy + 5);
+            } else if (b.type === 'bird') {
+                // Draw simple Bird
+                this.ctx.fillStyle = b.color;
+                this.ctx.beginPath();
+                this.ctx.moveTo(sx - 15, sy);
+                this.ctx.quadraticCurveTo(sx, sy - 15, sx + 15, sy);
+                this.ctx.quadraticCurveTo(sx, sy + 5, sx - 15, sy);
+                this.ctx.fill();
+                
+                // Beak
+                this.ctx.fillStyle = '#ff9f43';
+                this.ctx.beginPath();
+                this.ctx.moveTo(sx + 10, sy);
+                this.ctx.lineTo(sx + 20, sy);
+                this.ctx.lineTo(sx + 12, sy + 3);
+                this.ctx.fill();
             } else {
                 this.ctx.fillStyle = b.color;
                 this.ctx.fillRect(sx - 30, sy - 10, 60, 10);
