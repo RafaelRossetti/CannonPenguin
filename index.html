@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Yeti Launch | Cannon Penguin</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div id="ui-container">
+            <!-- Start Menu -->
+            <div id="menu-screen" class="screen">
+                <h1 class="game-title">YETI LAUNCH</h1>
+                <p class="high-score">RECORD: <span id="record-val">0</span>m</p>
+                <button id="start-btn" class="primary-btn">LANÇAR!</button>
+            </div>
+
+            <!-- Game HUD -->
+            <div id="hud" class="hidden">
+                <div class="distance-meter">
+                    <span id="dist-val">0</span>m
+                </div>
+                <!-- QTE Bar (only in Launch phase) -->
+                <div id="qte-container" class="hidden">
+                    <div class="qte-label">POTÊNCIA</div>
+                    <div class="qte-bar-bg">
+                        <div id="qte-indicator"></div>
+                        <div class="qte-perfect-zone"></div>
+                    </div>
+                    <div class="qte-hint">PRESSIONE [ESPAÇO] OU CLIQUE</div>
+                </div>
+            </div>
+
+            <!-- End Screen -->
+            <div id="end-screen" class="screen hidden">
+                <h2>DISTÂNCIA FINAL</h2>
+                <div class="final-score"><span id="final-dist-val">0</span>m</div>
+                <div id="new-record" class="hidden">NOVO RECORDE!</div>
+                <button id="restart-btn" class="secondary-btn">TENTAR NOVAMENTE</button>
+            </div>
+        </div>
+        <canvas id="game-canvas"></canvas>
+    </div>
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
