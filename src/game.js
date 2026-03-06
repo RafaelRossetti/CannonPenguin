@@ -42,33 +42,32 @@ export class Penguin {
         this.angle = Math.max(-Math.PI/3, Math.min(Math.PI/3, this.angle));
 
         // Physics Constants
-        const gravity = 0.35; // Reduced from 0.45 for longer air time
-        const airResistance = 0.003; // Reduced from 0.005
+        const gravity = 0.35; 
+        const airResistance = 0.002; // Slightly less air resistance for better glide
+        const groundFriction = 0.96; // Ice friction (was 0.8)
         
         // Apply Gravity
         this.vy += gravity;
 
-        // Apply Lift/Drag based on angle
-        // Aerodynamic logic: 
-        // - Nose up (-ve angle): high lift, high drag
-        // - Nose down (+ve angle): negative lift (dive), low drag
-        
+        // Aerodynamic logic
         let liftFactor = 0;
         let dragMultiplier = 1;
 
         if (this.angle < 0) {
-            // Gliding Up: High lift, but loses speed more quickly
-            liftFactor = -this.angle * 0.25; 
-            dragMultiplier = 1 + Math.abs(this.angle) * 0.5;
+            // Gliding Up: More lift, but costs X speed
+            liftFactor = -this.angle * 0.4; // Increased lift factor
+            dragMultiplier = 1 + Math.abs(this.angle) * 1.5; // High cost for climbing
         } else {
             // Diving: Gains speed, less lift
-            liftFactor = -this.angle * 0.1; 
-            dragMultiplier = 1 - (this.angle * 0.2);
+            liftFactor = -this.angle * 0.15; 
+            dragMultiplier = 1 - (this.angle * 0.4); // Very low drag when diving
         }
 
         // Apply Lift based on current horizontal speed
-        if (this.vx > 2) {
-            this.vy -= liftFactor * (this.vx * 0.12);
+        // If enough speed, vy will become negative (climb)
+        if (this.vx > 1) { 
+            const liftForce = liftFactor * (this.vx * 0.15);
+            this.vy -= liftForce;
         }
 
         // Apply Drag
@@ -83,13 +82,24 @@ export class Penguin {
         this.trail.push({x: this.x, y: this.y});
         if (this.trail.length > 20) this.trail.shift();
 
-        // Check Ground
+        // Check Ground (Bounce and Slide)
         if (this.y > this.groundY) {
             this.y = this.groundY;
-            this.vx *= 0.8; // Friction
-            this.vy = 0;
             
-            if (Math.abs(this.vx) < 1) {
+            // If hitting hard, bounce
+            if (this.vy > 2) {
+                this.vy = -this.vy * 0.5; // Ricochet (bounciness)
+                this.vx *= 0.9; // Lose a bit of speed on impact
+            } else {
+                // Otherwise, slide on ice
+                this.vy = 0;
+                this.vx *= groundFriction; 
+                this.angle = 0; // Straighten up on ice
+            }
+            
+            // End condition
+            if (Math.abs(this.vx) < 0.2) {
+                this.vx = 0;
                 this.isLaunched = false;
                 window.game.endGame();
             }
