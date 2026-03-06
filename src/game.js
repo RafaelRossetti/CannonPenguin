@@ -42,21 +42,37 @@ export class Penguin {
         this.angle = Math.max(-Math.PI/3, Math.min(Math.PI/3, this.angle));
 
         // Physics Constants
-        const gravity = 0.45;
-        const airResistance = 0.005;
+        const gravity = 0.35; // Reduced from 0.45 for longer air time
+        const airResistance = 0.003; // Reduced from 0.005
         
         // Apply Gravity
         this.vy += gravity;
 
         // Apply Lift/Drag based on angle
-        // If nose up (-ve angle in canvas terms since Y is down), get lift
-        const liftFactor = -this.angle * 0.15;
-        if (this.vx > 5) {
-            this.vy += liftFactor * this.vx * 0.1;
+        // Aerodynamic logic: 
+        // - Nose up (-ve angle): high lift, high drag
+        // - Nose down (+ve angle): negative lift (dive), low drag
+        
+        let liftFactor = 0;
+        let dragMultiplier = 1;
+
+        if (this.angle < 0) {
+            // Gliding Up: High lift, but loses speed more quickly
+            liftFactor = -this.angle * 0.25; 
+            dragMultiplier = 1 + Math.abs(this.angle) * 0.5;
+        } else {
+            // Diving: Gains speed, less lift
+            liftFactor = -this.angle * 0.1; 
+            dragMultiplier = 1 - (this.angle * 0.2);
+        }
+
+        // Apply Lift based on current horizontal speed
+        if (this.vx > 2) {
+            this.vy -= liftFactor * (this.vx * 0.12);
         }
 
         // Apply Drag
-        this.vx -= this.vx * airResistance;
+        this.vx -= this.vx * (airResistance * dragMultiplier);
         this.vy -= this.vy * airResistance;
 
         // Update Position
