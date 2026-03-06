@@ -106,9 +106,9 @@ export class Penguin {
         }
     }
 
-    draw(cameraX) {
+    draw(cameraX, cameraY) {
         const screenX = this.x - cameraX;
-        const screenY = this.y;
+        const screenY = this.y - cameraY;
 
         // Draw Trail
         this.ctx.beginPath();
@@ -117,8 +117,9 @@ export class Penguin {
         for (let i = 0; i < this.trail.length; i++) {
             const p = this.trail[i];
             const tx = p.x - cameraX;
-            if (i === 0) this.ctx.moveTo(tx, p.y);
-            else this.ctx.lineTo(tx, p.y);
+            const ty = p.y - cameraY;
+            if (i === 0) this.ctx.moveTo(tx, ty);
+            else this.ctx.lineTo(tx, ty);
         }
         this.ctx.stroke();
 
@@ -163,9 +164,9 @@ export class Yeti {
         this.height = 120;
     }
 
-    draw(cameraX) {
+    draw(cameraX, cameraY) {
         const x = 100 - cameraX;
-        const y = window.innerHeight - 100;
+        const y = window.innerHeight - 100 - cameraY;
 
         // Simple Yeti Shape
         this.ctx.fillStyle = 'white';

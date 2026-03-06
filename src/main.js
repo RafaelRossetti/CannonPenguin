@@ -30,7 +30,8 @@ class GameController {
             newRecord: document.getElementById('new-record'),
             startBtn: document.getElementById('start-btn'),
             restartBtn: document.getElementById('restart-btn'),
-            qteIndicator: document.getElementById('qte-indicator')
+            qteIndicator: document.getElementById('qte-indicator'),
+            bgMusic: document.getElementById('bg-music')
         };
 
         this.input = {
@@ -39,6 +40,7 @@ class GameController {
         };
 
         this.cameraX = 0;
+        this.cameraY = 0;
         this.lastTime = 0;
         
         // Components
@@ -100,6 +102,12 @@ class GameController {
         this.penguin.reset();
         this.env.reset();
         
+        // Reset music 
+        if (this.elements.bgMusic) {
+            this.elements.bgMusic.pause();
+            this.elements.bgMusic.currentTime = 0;
+        }
+        
         this.screens.menu.classList.add('hidden');
         this.screens.end.classList.add('hidden');
         this.screens.hud.classList.remove('hidden');
@@ -116,6 +124,11 @@ class GameController {
         this.state = STATES.TRAVEL;
         
         this.penguin.launch(precision);
+
+        // Play music
+        if (this.elements.bgMusic) {
+            this.elements.bgMusic.play().catch(e => console.log("Audio play failed:", e));
+        }
     }
 
     endGame() {
@@ -133,6 +146,11 @@ class GameController {
             this.elements.recordVal.textContent = this.record;
         } else {
             this.elements.newRecord.classList.add('hidden');
+        }
+
+        // Stop music or lower volume
+        if (this.elements.bgMusic) {
+            this.elements.bgMusic.pause();
         }
     }
 
@@ -153,15 +171,16 @@ class GameController {
         this.elements.qteIndicator.style.left = `${this.qtePower * 100}%`;
     }
 
-    drawParallax() {
+    drawParallax(cameraY = 0) {
         // Simple procedural mountains
         this.ctx.fillStyle = '#1e272e';
         for(let i=0; i<5; i++) {
             const px = (i * 800 - (this.cameraX * 0.2)) % 4000;
+            const py = this.env.groundY - (cameraY * 0.2); // Subtle vertical parallax
             this.ctx.beginPath();
-            this.ctx.moveTo(px, this.env.groundY);
-            this.ctx.lineTo(px + 400, this.env.groundY - 300);
-            this.ctx.lineTo(px + 800, this.env.groundY);
+            this.ctx.moveTo(px, py);
+            this.ctx.lineTo(px + 400, py - 300);
+            this.ctx.lineTo(px + 800, py);
             this.ctx.fill();
         }
     }
@@ -179,9 +198,18 @@ class GameController {
             
             this.elements.distVal.textContent = Math.floor(this.penguin.x / 10);
             
+            
             // Camera follow
             const targetCamX = this.penguin.x - window.innerWidth / 3;
             this.cameraX += (targetCamX - this.cameraX) * 0.1;
+
+            // Vertical Camera Follow
+            // Keep the penguin at about 60% height of the screen when flying
+            const targetCamY = Math.min(0, this.penguin.y - window.innerHeight * 0.6);
+            this.cameraY += (targetCamY - this.cameraY) * 0.05;
+        } else {
+            // Smoothly return camera Y to 0 when not traveling
+            this.cameraY += (0 - this.cameraY) * 0.05;
         }
 
         // Render
@@ -194,10 +222,10 @@ class GameController {
         this.ctx.fillStyle = grad;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.drawParallax();
-        this.env.draw(this.cameraX);
-        this.yeti.draw(this.cameraX);
-        this.penguin.draw(this.cameraX);
+        this.drawParallax(this.cameraY);
+        this.env.draw(this.cameraX, this.cameraY);
+        this.yeti.draw(this.cameraX, this.cameraY);
+        this.penguin.draw(this.cameraX, this.cameraY);
         
         requestAnimationFrame((t) => this.loop(t));
     }
