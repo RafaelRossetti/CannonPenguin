@@ -17,10 +17,10 @@ export class Environment {
     generateNewChunk(startX) {
         const chunkWidth = 2000;
         // Generate a few air boosters (Clouds - Buffs)
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 3; i++) {
             this.boosters.push({
                 x: startX + Math.random() * chunkWidth,
-                y: -1000 + Math.random() * (this.groundY + 800), // Much wider vertical range
+                y: -1500 + Math.random() * (this.groundY + 1200), // even wider range
                 type: 'cloud',
                 radius: 40,
                 color: 'rgba(255, 255, 255, 0.5)'
@@ -28,7 +28,7 @@ export class Environment {
         }
 
         // Generate flying obstacles (Birds - Nerfs)
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 1; i++) {
             this.boosters.push({
                 x: startX + Math.random() * chunkWidth,
                 y: -1200 + Math.random() * (this.groundY + 1000),
